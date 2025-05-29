@@ -35,15 +35,19 @@ data = worksheet.get_all_records()
 df = pd.DataFrame(data)
 
 # إدخال الرسالة
-message = st.text_area("✏️ اكتب نص الرسالة:", "نزلت المحاضرة الجديدة! شغّلها على المنصة 💻")
+message = st.text_area("✏️ اكتب نص الرسالة (يمكنك استخدام {name} لتخصيص الرسالة):", "نزلت المحاضرة الجديدة! شغّلها على المنصة 💻")
 
 # عرض عدد الطلاب وجدولهم
 st.markdown(f"عدد الطلاب: {len(df)}")
 st.dataframe(df[["الاسم", "الرقم"]], use_container_width=True)
 
-# زر إرسال (محاكاة فقط)
+# زر إرسال فعلي
 if st.button("🚀 إرسال الرسالة"):
-    for _, row in df.iterrows():
-        name = row["الاسم"]
-        phone = row["الرقم"]
-        st.success(f"📤 تم تجهيز الرسالة لـ {name} ({phone})")
+    request_data = {
+        "sheet": worksheet_map[selected_subject],
+        "message": message
+    }
+    with open("send_request.json", "w", encoding="utf-8") as f:
+        json.dump(request_data, f, ensure_ascii=False, indent=2)
+
+    st.success("📤 تم تجهيز الطلب. سكربت واتساب سيبدأ الإرسال تلقائيًا.")
