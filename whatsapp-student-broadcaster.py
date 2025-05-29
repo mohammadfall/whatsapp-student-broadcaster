@@ -10,8 +10,8 @@ service_info = json.loads(st.secrets["GOOGLE_SERVICE_ACCOUNT"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(service_info, scope)
 client = gspread.authorize(creds)
 
-# معلومات الشيت
-sheet_name = "whatsapp-student-broadcaster"  # اسم Google Sheet
+# ID الخاص بملف Google Sheet (من الرابط)
+sheet_id = "1gin23ojAkaWviu7zy5wVqMqR2kX1xQDTz2EkQsepdQo"
 
 # الربط بين المادة واسم الشيت الداخلي (worksheet)
 worksheet_map = {
@@ -29,8 +29,8 @@ st.markdown("اختر المادة، اكتب الرسالة، واضغط إرس
 # اختيار المادة
 selected_subject = st.selectbox("اختر المادة", list(worksheet_map.keys()))
 
-# قراءة البيانات من الشيت
-worksheet = client.open(sheet_name).worksheet(worksheet_map[selected_subject])
+# قراءة البيانات من Google Sheet
+worksheet = client.open_by_key(sheet_id).worksheet(worksheet_map[selected_subject])
 data = worksheet.get_all_records()
 df = pd.DataFrame(data)
 
