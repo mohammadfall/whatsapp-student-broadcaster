@@ -8,6 +8,11 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ راوت رئيسي للتأكد من أن السيرفر شغال
+app.get('/', (req, res) => {
+  res.send('🚀 WhatsApp Bot is Live on Railway!');
+});
+
 // عرض صورة QR عبر /qr
 app.get('/qr', (req, res) => {
   const qrPath = path.join(__dirname, 'qr.png');
