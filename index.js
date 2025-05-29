@@ -21,18 +21,17 @@ app.listen(PORT, () => {
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
-    executablePath: process.env.CHROME_PATH || '/usr/bin/chromium-browser', // عيّن هنا متغير CHROME_PATH
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox'], // مهم جدًا على Railway
   },
 });
 
 client.on('qr', async (qr) => {
   try {
     await qrcode.toFile('qr.png', qr);
-    console.log('QR code saved to qr.png - افتح /qr في المتصفح');
+    console.log('📸 QR code saved to qr.png - افتح /qr في المتصفح');
   } catch (err) {
-    console.error('Failed to generate QR code image', err);
+    console.error('❌ Failed to generate QR code image', err);
   }
 });
 
