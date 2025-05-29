@@ -1,7 +1,8 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const qrcode = require('qrcode');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 require('dotenv').config();
+const fs = require('fs');
 
 const client = new Client({
   authStrategy: new LocalAuth(),
@@ -11,7 +12,14 @@ const client = new Client({
   },
 });
 
-client.on('qr', (qr) => qrcode.generate(qr, { small: true }));
+client.on('qr', async (qr) => {
+  try {
+    await qrcode.toFile('qr.png', qr); // تحفظ QR code كصورة في ملف qr.png
+    console.log('QR code saved to qr.png');
+  } catch (err) {
+    console.error('Failed to generate QR code image', err);
+  }
+});
 
 client.on('ready', async () => {
   console.log('✅ WhatsApp Bot is ready!');
