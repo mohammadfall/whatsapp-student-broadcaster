@@ -18,10 +18,12 @@ client.on('ready', async () => {
 
   async function checkAndSendMessages() {
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
+
     await doc.useServiceAccountAuth({
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n'),
+      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), // ✅ التصليح
     });
+
     await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0];
     const rows = await sheet.getRows();
@@ -45,8 +47,8 @@ client.on('ready', async () => {
   // Run immediately
   await checkAndSendMessages();
 
-  // Repeat every 7 minutes (420,000 ms)
-  setInterval(checkAndSendMessages, 420000);
+  // Repeat every 7 minutes
+  setInterval(checkAndSendMessages, 7 * 60 * 1000);
 });
 
 client.initialize();
