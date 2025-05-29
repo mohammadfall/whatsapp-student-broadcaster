@@ -8,14 +8,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// سيرفر صغير لعرض صورة الـ QR
+// عرض صورة QR عبر /qr
 app.get('/qr', (req, res) => {
   const qrPath = path.join(__dirname, 'qr.png');
   res.sendFile(qrPath);
 });
 
 app.listen(PORT, () => {
-  console.log(`Express server running on port ${PORT}`);
+  console.log(`🚀 Express server running on port ${PORT}`);
 });
 
 const client = new Client({
@@ -43,7 +43,8 @@ client.on('ready', async () => {
 
     await doc.useServiceAccountAuth({
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '
+'),
     });
 
     await doc.loadInfo();
