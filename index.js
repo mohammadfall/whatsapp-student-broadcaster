@@ -10,7 +10,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// سيرفر بسيط لعرض صورة QR
+// سيرفر بسيط لعرض صورة QR عند زيارة /qr
 app.get('/qr', (req, res) => {
   const qrPath = path.join(__dirname, 'qr.png');
   res.sendFile(qrPath);
@@ -23,7 +23,7 @@ app.listen(PORT, () => {
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
-    executablePath: process.env.CHROME_PATH || '/usr/bin/chromium-browser',
+    executablePath: process.env.CHROME_PATH || '/usr/bin/chromium-browser', // مسار كروميوم من متغير البيئة
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   },
@@ -31,7 +31,7 @@ const client = new Client({
 
 client.on('qr', async (qr) => {
   try {
-    await qrcode.toFile('qr.png', qr);
+    await qrcode.toFile('qr.png', qr); // حفظ QR كصورة
     console.log('QR code saved to qr.png - Visit /qr to view');
   } catch (err) {
     console.error('Failed to generate QR code image', err);
@@ -46,7 +46,7 @@ client.on('ready', async () => {
 
     await doc.useServiceAccountAuth({
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), // تصليح أسطر المفتاح الخاص
     });
 
     await doc.loadInfo();
@@ -69,10 +69,10 @@ client.on('ready', async () => {
     }
   }
 
-  // Run immediately
+  // نفذ فوراً
   await checkAndSendMessages();
 
-  // Repeat every 7 minutes
+  // كرر كل 7 دقائق
   setInterval(checkAndSendMessages, 7 * 60 * 1000);
 });
 
