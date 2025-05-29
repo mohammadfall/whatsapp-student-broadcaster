@@ -1,12 +1,29 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const puppeteer = require('puppeteer-core');
 const qrcode = require('qrcode');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 require('dotenv').config();
 const fs = require('fs');
+const express = require('express');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// سيرفر بسيط لعرض صورة QR
+app.get('/qr', (req, res) => {
+  const qrPath = path.join(__dirname, 'qr.png');
+  res.sendFile(qrPath);
+});
+
+app.listen(PORT, () => {
+  console.log(`Express server running on port ${PORT}`);
+});
 
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
+    executablePath: process.env.CHROME_PATH || '/usr/bin/chromium-browser',
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   },
@@ -14,8 +31,8 @@ const client = new Client({
 
 client.on('qr', async (qr) => {
   try {
-    await qrcode.toFile('qr.png', qr); // تحفظ QR code كصورة في ملف qr.png
-    console.log('QR code saved to qr.png');
+    await qrcode.toFile('qr.png', qr);
+    console.log('QR code saved to qr.png - Visit /qr to view');
   } catch (err) {
     console.error('Failed to generate QR code image', err);
   }
@@ -29,7 +46,7 @@ client.on('ready', async () => {
 
     await doc.useServiceAccountAuth({
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), // ✅ التصليح
+      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     });
 
     await doc.loadInfo();
