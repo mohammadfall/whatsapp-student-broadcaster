@@ -22,7 +22,7 @@ const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'], // مهم جدًا على Railway
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   },
 });
 
