@@ -1,43 +1,40 @@
 import streamlit as st
-import pandas as pd
 import gspread
+import pandas as pd
+from oauth2client.service_account import ServiceAccountCredentials
 import json
 from datetime import datetime
-from oauth2client.service_account import ServiceAccountCredentials
 
-# إعداد الوصول لـ Google Sheets باستخدام Streamlit Secrets
+# 1. إعداد الاتصال بـ Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 service_info = json.loads(st.secrets["GOOGLE_SERVICE_ACCOUNT"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(service_info, scope)
 client = gspread.authorize(creds)
 
-# تحميل الشيت الرئيسي
+# 2. حدد اسم الشيت
 SHEET_ID = "1gin23ojAkaWviu7zy5wVqMqR2kX1xQDTz2EkQsepdQo"
 spreadsheet = client.open_by_key(SHEET_ID)
-sheet_names = [sheet.title for sheet in spreadsheet.worksheets() if sheet.title != "send_log"]
 
-st.title("📬 منصة إرسال رسائل واتساب للطلاب")
+# 3. واجهة Streamlit
+st.title("📲 تطبيق إرسال الرسائل على واتساب")
 
-# اختيار الشيت (المادة)
-selected_sheet = st.selectbox("اختر الشيت (المادة):", sheet_names)
-students_df = pd.DataFrame(spreadsheet.worksheet(selected_sheet).get_all_records())
+# 3.1 اختيار المادة (اسم الورقة)
+sheet_names = [s.title for s in spreadsheet.worksheets() if s.title != "send_log"]
+subject = st.selectbox("اختر المادة:", sheet_names)
 
-# عرض الطلاب
-with st.expander("👥 عرض أسماء الطلاب"):
-    st.dataframe(students_df)
+# 3.2 إدخال الرسالة
+default_message = "مرحبًا {name}، تم رفع المحاضرة الجديدة ✅"
+message_template = st.text_area("✉️ الرسالة (استخدم {name} داخل النص):", value=default_message)
 
-# كتابة الرسالة
-message_template = st.text_area("✉️ نص الرسالة:", "مرحبًا {الاسم}، تم رفع المحاضرة الجديدة على المنصة 🎓")
+# 3.3 عرض الطلاب
+worksheet = spreadsheet.worksheet(subject)
+data = worksheet.get_all_records()
+df = pd.DataFrame(data)
 
-# إرسال الطلبات للبوت
-if st.button("🚀 إرسال الرسالة"):
-    log_ws = spreadsheet.worksheet("send_log")
-    for _, row in students_df.iterrows():
-        message = message_template.replace("{الاسم}", row["الاسم"])
-        log_ws.append_row([
-            selected_sheet,
-            message,
-            "pending",
-            str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        ])
-    st.success("✅ تم إرسال الطلبات للبوت بنجاح! سيتم الإرسال تلقائيًا ✨")
+st.subheader("👥 قائمة الطلاب:")
+st.dataframe(df)
+
+# 3.4 زر الإرسال (سيتم التفعيل لاحقًا)
+if st.button("🚀 إرسال الرسائل"):
+    st.success("✨ تم تحضير الرسائل (الخطوة التالية: إرسال واتساب سيتم برمجته)")
+
